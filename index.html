@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ReelSave — Instagram Reels & Stories Downloader</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #13131a;
+      --surface2: #1c1c27;
+      --accent: #ff3d6e;
+      --accent2: #ff8c42;
+      --purple: #7b5ea7;
+      --text: #f0f0f5;
+      --muted: #888899;
+      --border: rgba(255,255,255,0.07);
+      --glow: 0 0 40px rgba(255,61,110,0.25);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* ─── BACKGROUND EFFECTS ─── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 20% 10%, rgba(255,61,110,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 80% 80%, rgba(123,94,167,0.1) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ─── NAVBAR ─── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 48px;
+      backdrop-filter: blur(16px);
+      background: rgba(10,10,15,0.7);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.5rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    .logo span { color: white; -webkit-text-fill-color: white; }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 32px;
+      align-items: center;
+    }
+
+    nav ul a {
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    nav ul a:hover { color: var(--text); }
+
+    .btn-nav {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: white !important;
+      padding: 8px 22px;
+      border-radius: 100px;
+      font-weight: 600 !important;
+      transition: opacity 0.2s, transform 0.2s !important;
+    }
+
+    .btn-nav:hover { opacity: 0.85; transform: translateY(-1px); }
+
+    /* ─── HERO ─── */
+    .hero {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 24px 60px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,61,110,0.1);
+      border: 1px solid rgba(255,61,110,0.3);
+      color: var(--accent);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 6px 16px;
+      border-radius: 100px;
+      letter-spacing: 0.5px;
+      margin-bottom: 28px;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .badge::before { content: '✦'; }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.8rem, 6vw, 5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -2px;
+      max-width: 820px;
+      animation: fadeUp 0.6s 0.1s ease both;
+    }
+
+    h1 .gradient {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 50%, var(--purple) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      margin-top: 20px;
+      color: var(--muted);
+      font-size: 1.1rem;
+      max-width: 540px;
+      line-height: 1.7;
+      animation: fadeUp 0.6s 0.2s ease both;
+    }
+
+    /* ─── DOWNLOADER BOX ─── */
+    .downloader {
+      margin-top: 44px;
+      width: 100%;
+      max-width: 660px;
+      animation: fadeUp 0.6s 0.3s ease both;
+    }
+
+    .input-wrap {
+      display: flex;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 8px 8px 8px 20px;
+      gap: 10px;
+      align-items: center;
+      box-shadow: var(--glow);
+      transition: border-color 0.3s;
+    }
+
+    .input-wrap:focus-within {
+      border-color: rgba(255,61,110,0.5);
+    }
+
+    .input-wrap input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-size: 0.95rem;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .input-wrap input::placeholder { color: var(--muted); }
+
+    .btn-download {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.2s, transform 0.2s;
+      letter-spacing: 0.3px;
+    }
+
+    .btn-download:hover { opacity: 0.85; transform: scale(1.03); }
+    .btn-download:active { transform: scale(0.97); }
+
+    /* ─── TAB SWITCHER ─── */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      justify-content: center;
+    }
+
+    .tab {
+      padding: 8px 22px;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .tab.active {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: white;
+      border-color: transparent;
+    }
+
+    /* ─── AD BANNER (TOP) ─── */
+    .ad-banner-top {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 728px;
+      margin: 0 auto 20px;
+      padding: 0 24px;
+      animation: fadeUp 0.6s 0.4s ease both;
+    }
+
+    /* ─── RESULT AREA ─── */
+    .result-area {
+      margin-top: 20px;
+      display: none;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    .result-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .thumb {
+      width: 80px;
+      height: 80px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+
+    .result-info { flex: 1; text-align: left; }
+    .result-info h4 { font-size: 0.95rem; margin-bottom: 4px; }
+    .result-info p { font-size: 0.8rem; color: var(--muted); }
+
+    .btn-dl-small {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: opacity 0.2s;
+    }
+
+    .btn-dl-small:hover { opacity: 0.85; }
+
+    /* ─── GOOGLE ADS PLACEHOLDER ─── */
+    .ad-slot {
+      background: var(--surface2);
+      border: 1.5px dashed rgba(255,255,255,0.12);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ad-slot::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,61,110,0.03), rgba(123,94,167,0.03));
+    }
+
+    .ad-slot .ad-label {
+      font-size: 0.65rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.2);
+      margin-bottom: 6px;
+    }
+
+    .ad-slot .ad-size {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.3);
+    }
+
+    /* Leaderboard 728x90 */
+    .ad-leaderboard {
+      width: 100%;
+      max-width: 728px;
+      height: 90px;
+    }
+
+    /* Rectangle 300x250 */
+    .ad-rectangle {
+      width: 300px;
+      height: 250px;
+    }
+
+    /* Banner 468x60 */
+    .ad-banner {
+      width: 100%;
+      max-width: 468px;
+      height: 60px;
+    }
+
+    /* ─── FEATURES ─── */
+    .section {
+      position: relative;
+      z-index: 1;
+      padding: 80px 48px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 14px;
+    }
+
+    .section h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 48px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      transition: transform 0.25s, border-color 0.25s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255,61,110,0.25);
+    }
+
+    .feature-icon {
+      font-size: 2rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .feature-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .feature-card p {
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    /* ─── HOW IT WORKS ─── */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0;
+      counter-reset: steps;
+      position: relative;
+    }
+
+    .steps::before {
+      content: '';
+      position: absolute;
+      top: 28px;
+      left: 10%;
+      right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), var(--border), transparent);
+    }
+
+    .step {
+      text-align: center;
+      padding: 20px;
+      counter-increment: steps;
+      position: relative;
+    }
+
+    .step-num {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.2rem;
+      margin: 0 auto 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .step h3 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 8px;
+    }
+
+    .step p { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+
+    /* ─── AD SIDEBAR LAYOUT ─── */
+    .main-content-with-ads {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 32px;
+      align-items: start;
+    }
+
+    .sidebar-ads {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      position: sticky;
+      top: 90px;
+    }
+
+    /* ─── FAQ ─── */
+    .faq-list { display: flex; flex-direction: column; gap: 12px; }
+
+    .faq-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .faq-q {
+      padding: 18px 20px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 500;
+      font-size: 0.9rem;
+      user-select: none;
+      transition: background 0.2s;
+    }
+
+    .faq-q:hover { background: var(--surface2); }
+
+    .faq-q span { color: var(--accent); font-size: 1.2rem; transition: transform 0.2s; }
+    .faq-q.open span { transform: rotate(45deg); }
+
+    .faq-a {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.3s;
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.7;
+      padding: 0 20px;
+    }
+
+    .faq-a.open { max-height: 200px; padding: 0 20px 18px; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 40px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    footer .logo { font-size: 1.2rem; }
+
+    footer nav { display: flex; gap: 24px; }
+    footer nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.2s;
+    }
+    footer nav a:hover { color: var(--text); }
+
+    footer p { color: var(--muted); font-size: 0.8rem; }
+
+    /* ─── ANIMATIONS ─── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 768px) {
+      nav { padding: 14px 20px; }
+      nav ul { display: none; }
+      .section { padding: 60px 20px; }
+      footer { padding: 30px 20px; flex-direction: column; text-align: center; }
+      .main-content-with-ads { grid-template-columns: 1fr; }
+      .sidebar-ads { display: none; }
+      .steps::before { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav>
+    <div class="logo">Reel<span>Save</span></div>
+    <ul>
+      <li><a href="#how">How it Works</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="#" class="btn-nav">Download Free</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO + MAIN DOWNLOADER -->
+  <section class="hero">
+    <div class="badge">Free · Fast · No Login Required</div>
+    <h1>Download <span class="gradient">Instagram Reels</span><br>& Stories Instantly</h1>
+    <p>Paste any Instagram link and save Reels, Stories, and Photos in HD quality — no app needed, no watermark.</p>
+
+    <!-- Tab Switcher -->
+    <div class="tabs" style="margin-top:36px;">
+      <button class="tab active" onclick="switchTab(this, 'reels')">📹 Reels</button>
+      <button class="tab" onclick="switchTab(this, 'stories')">🔴 Stories</button>
+      <button class="tab" onclick="switchTab(this, 'photos')">🖼️ Photos</button>
+    </div>
+
+    <!-- Downloader Input -->
+    <div class="downloader">
+      <div class="input-wrap">
+        <input type="text" id="urlInput" placeholder="Paste Instagram URL here… e.g. https://www.instagram.com/reel/..." />
+        <button class="btn-download" onclick="handleDownload()">⬇ Download</button>
+      </div>
+
+      <!-- Result Preview -->
+      <div class="result-area" id="resultArea">
+        <div class="result-card">
+          <div class="thumb">🎬</div>
+          <div class="result-info">
+            <h4 id="resultTitle">Instagram Reel</h4>
+            <p id="resultMeta">HD Quality • MP4 • Ready to Download</p>
+          </div>
+          <button class="btn-dl-small">Save ⬇</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ad Leaderboard Below Downloader -->
+    <div class="ad-banner-top" style="margin-top:32px;">
+      <!-- GOOGLE ADSENSE: Replace below with your actual ad code -->
+      <div class="ad-slot ad-leaderboard">
+        <div class="ad-label">Advertisement</div>
+        <div class="ad-size">728 × 90 — Leaderboard Ad</div>
+        <!-- <ins class="adsbygoogle" style="display:inline-block;width:728px;height:90px" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX"></ins> -->
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN CONTENT WITH SIDEBAR ADS -->
+  <div class="main-content-with-ads">
+
+    <div class="main-col">
+
+      <!-- HOW IT WORKS -->
+      <section class="section" id="how" style="padding-left:0;padding-right:0;">
+        <div class="section-label">Simple Process</div>
+        <h2>How It Works</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <h3>Copy Link</h3>
+            <p>Open Instagram, tap the share icon on any Reel or Story and copy the link.</p>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <h3>Paste URL</h3>
+            <p>Paste the copied Instagram URL into the input box above.</p>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <h3>Download</h3>
+            <p>Click Download and save your video or photo in HD directly to your device.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- AD BANNER MID -->
+      <div style="display:flex;justify-content:center;margin:20px 0;">
+        <!-- GOOGLE ADSENSE: Replace below with your actual ad code -->
+        <div class="ad-slot ad-banner">
+          <div class="ad-label">Advertisement</div>
+          <div class="ad-size">468 × 60 — Banner Ad</div>
+          <!-- <ins class="adsbygoogle" ...></ins> -->
+        </div>
+      </div>
+
+      <!-- FEATURES -->
+      <section class="section" id="features" style="padding-left:0;padding-right:0;">
+        <div class="section-label">Why ReelSave</div>
+        <h2>Everything You Need</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <span class="feature-icon">⚡</span>
+            <h3>Lightning Fast</h3>
+            <p>Process and download videos in seconds. No waiting, no queues — instant results every time.</p>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon">🎥</span>
+            <h3>HD Quality</h3>
+            <p>Download Reels and Stories in the highest available resolution with full audio.</p>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon">🚫</span>
+            <h3>No Watermark</h3>
+            <p>Get clean, original videos without any watermarks or branding added to your files.</p>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon">🔒</span>
+            <h3>100% Private</h3>
+            <p>We don't store your data or downloaded content. Everything is processed securely.</p>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon">📱</span>
+            <h3>Works on All Devices</h3>
+            <p>Use on iPhone, Android, PC, or Mac. No app required — works right in your browser.</p>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon">🆓</span>
+            <h3>Completely Free</h3>
+            <p>No subscription, no signup, no hidden fees. Download as many videos as you want.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- FAQ -->
+      <section class="section" id="faq" style="padding-left:0;padding-right:0;">
+        <div class="section-label">Got Questions?</div>
+        <h2>Frequently Asked</h2>
+        <div class="faq-list">
+          <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">Is ReelSave free to use? <span>+</span></div>
+            <div class="faq-a">Yes! ReelSave is 100% free. There are no limits on downloads, no registration required, and no hidden charges.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">Can I download private Instagram Stories? <span>+</span></div>
+            <div class="faq-a">ReelSave can only download content from public accounts. Private account content requires the account owner's permission.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">What format are downloaded videos saved in? <span>+</span></div>
+            <div class="faq-a">All videos are saved in MP4 format, which is compatible with all devices and platforms including iPhone, Android, Windows, and Mac.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">Is it safe to use ReelSave? <span>+</span></div>
+            <div class="faq-a">Absolutely. We don't ask for your Instagram login credentials, and we don't store any of your data or downloaded content on our servers.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">How do I get an Instagram Reel link? <span>+</span></div>
+            <div class="faq-a">Open the Instagram app, go to a Reel, tap the three-dot menu (⋯) or the share icon, then tap "Copy Link". Paste that link into ReelSave.</div>
+          </div>
+        </div>
+      </section>
+
+    </div><!-- end .main-col -->
+
+    <!-- SIDEBAR ADS (Desktop) -->
+    <div class="sidebar-ads">
+      <!-- GOOGLE ADSENSE: Replace below with your actual ad codes -->
+      <div class="ad-slot ad-rectangle">
+        <div class="ad-label">Advertisement</div>
+        <div class="ad-size">300 × 250 — Medium Rectangle</div>
+        <!-- <ins class="adsbygoogle" style="display:inline-block;width:300px;height:250px" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX"></ins> -->
+      </div>
+
+      <div class="ad-slot ad-rectangle">
+        <div class="ad-label">Advertisement</div>
+        <div class="ad-size">300 × 250 — Medium Rectangle</div>
+        <!-- <ins class="adsbygoogle" style="display:inline-block;width:300px;height:250px" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX"></ins> -->
+      </div>
+    </div>
+
+  </div><!-- end .main-content-with-ads -->
+
+  <!-- FOOTER AD -->
+  <div style="display:flex;justify-content:center;padding:20px 24px;position:relative;z-index:1;">
+    <!-- GOOGLE ADSENSE: Replace below with your actual ad code -->
+    <div class="ad-slot ad-leaderboard">
+      <div class="ad-label">Advertisement</div>
+      <div class="ad-size">728 × 90 — Leaderboard Ad</div>
+      <!-- <ins class="adsbygoogle" style="display:inline-block;width:728px;height:90px" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX"></ins> -->
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="logo">Reel<span>Save</span></div>
+    <nav>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Use</a>
+      <a href="#">DMCA</a>
+      <a href="#">Contact</a>
+    </nav>
+    <p>© 2026 ReelSave. Not affiliated with Instagram or Meta.</p>
+  </footer>
+
+  <!-- SCRIPTS -->
+  <script>
+    // Tab switcher
+    function switchTab(el, type) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      const placeholders = {
+        reels: 'Paste Instagram Reel URL… e.g. https://www.instagram.com/reel/...',
+        stories: 'Paste Instagram Story URL… e.g. https://www.instagram.com/stories/...',
+        photos: 'Paste Instagram Photo URL… e.g. https://www.instagram.com/p/...'
+      };
+      document.getElementById('urlInput').placeholder = placeholders[type];
+      document.getElementById('resultArea').style.display = 'none';
+    }
+
+    // Simulated download handler (replace with real API call)
+    function handleDownload() {
+      const url = document.getElementById('urlInput').value.trim();
+      if (!url) {
+        document.getElementById('urlInput').style.borderColor = 'var(--accent)';
+        document.getElementById('urlInput').focus();
+        return;
+      }
+      const resultArea = document.getElementById('resultArea');
+      const btn = document.querySelector('.btn-download');
+      btn.textContent = '⏳ Processing...';
+      btn.disabled = true;
+      setTimeout(() => {
+        btn.textContent = '⬇ Download';
+        btn.disabled = false;
+        resultArea.style.display = 'block';
+
+        // Detect type from URL
+        let title = 'Instagram Reel', icon = '🎬';
+        if (url.includes('stories')) { title = 'Instagram Story'; icon = '🔴'; }
+        else if (url.includes('/p/')) { title = 'Instagram Photo'; icon = '🖼️'; }
+        document.getElementById('resultTitle').textContent = title;
+        document.querySelector('.thumb').textContent = icon;
+      }, 1500);
+    }
+
+    // Enter key support
+    document.getElementById('urlInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') handleDownload();
+    });
+
+    // FAQ toggle
+    function toggleFaq(el) {
+      el.classList.toggle('open');
+      const ans = el.nextElementSibling;
+      ans.classList.toggle('open');
+    }
+  </script>
+
+</body>
+</html>
