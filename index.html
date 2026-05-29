@@ -814,9 +814,17 @@
         );
 
         const data = await response.json();
+        console.log('API Response:', JSON.stringify(data));
 
-        if (data && (data.url || data.video_url || data.download_url || (data.data && data.data.url))) {
-          const downloadUrl = data.url || data.video_url || data.download_url || data.data.url;
+        const downloadUrl = data.url || data.video_url || data.download_url ||
+          data.VideoUrl || data.videoUrl ||
+          (data.data && (data.data.url || data.data.video_url || data.data.download_url)) ||
+          (data.result && (data.result.url || data.result.video_url)) ||
+          (Array.isArray(data) && data[0] && data[0].url) ||
+          (data.medias && data.medias[0] && data.medias[0].url) ||
+          (data.links && data.links[0]);
+
+        if (downloadUrl) {
 
           let title = 'Instagram Reel', icon = '🎬';
           if (url.includes('stories')) { title = 'Instagram Story'; icon = '🔴'; }
