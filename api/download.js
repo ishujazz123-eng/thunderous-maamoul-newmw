@@ -10,11 +10,12 @@ export default async function handler(req, res) {
 
   try {
     const response = await fetch(
-      `https://instagram-reels-downloader-api.p.rapidapi.com/download?url=${encodeURIComponent(url)}`,
+      `https://instagram-downloader-download-instagram-stories-videos4.p.rapidapi.com/convert?url=${encodeURIComponent(url)}`,
       {
         method: 'GET',
         headers: {
-          'x-rapidapi-host': 'instagram-reels-downloader-api.p.rapidapi.com',
+          'Content-Type': 'application/json',
+          'x-rapidapi-host': 'instagram-downloader-download-instagram-stories-videos4.p.rapidapi.com',
           'x-rapidapi-key': '65310ecc90mshfe48eb2f7b14a9ap194dc1jsn764cc9201cdc'
         }
       }
