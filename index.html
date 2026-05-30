@@ -816,11 +816,11 @@
         const data = await response.json();
         console.log('API Response:', JSON.stringify(data));
 
-        // Find the best video URL (not audio, highest quality)
+        // Find the best video URL from medias array
         let downloadUrl = null;
-        if (data.success && data.data && Array.isArray(data.data.urls)) {
-          const videos = data.data.urls.filter(v => !v.is_audio && v.extension !== 'm4a');
-          const best = videos.find(v => v.quality === 'hd') || videos[0];
+        if (data.success && data.data && Array.isArray(data.data.medias)) {
+          const videos = data.data.medias.filter(v => v.type === 'video' && !v.is_audio && v.extension === 'mp4');
+          const best = videos[0];
           if (best) downloadUrl = best.url;
         }
 
