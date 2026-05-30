@@ -803,18 +803,18 @@
 
       try {
         const response = await fetch(
-          `/api/download?url=${encodeURIComponent(url)}`
+          `/api/download?url=${encodeURIComponent(url)}&api=new`
         );
 
         const data = await response.json();
         console.log('API Response:', JSON.stringify(data));
 
-        // Find the best video URL from medias array
+        // Find the best video URL from media array
         let downloadUrl = null;
-        if (data.success && data.data && Array.isArray(data.data.medias)) {
-          const videos = data.data.medias.filter(v => v.extension === 'mp4');
-          const best = videos[0];
-          if (best) downloadUrl = best.url;
+        if (data.media && Array.isArray(data.media)) {
+          const video = data.media.find(v => v.type === 'video') || 
+                       data.media.find(v => v.url && v.url.includes('.mp4'));
+          if (video) downloadUrl = video.url;
         }
 
         if (downloadUrl) {
