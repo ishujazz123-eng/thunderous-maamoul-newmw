@@ -8,3 +8,13 @@ h2{margin-top:32px;font-size:1.3rem}
 .updated{color:#666;font-size:.9rem;margin-top:0}
 a{color:#c13584}
 footer{text-align:center;margin-top:48px;font-size:.9rem}
+
+/* blog */
+.crumbs{font-size:.85rem;color:#666;margin:0 0 8px}
+.note{color:#666;font-size:.9rem;border-top:1px solid #ddd;padding-top:16px;margin-top:32px}
+ul.cards{list-style:none;padding:0;display:grid;gap:16px}
+.card{background:#fff;border:1px solid #e5e5e5;border-radius:10px;padding:4px 18px 8px}
+.card h2{font-size:1.1rem;margin:14px 0 4px}
+.card p{margin:4px 0 8px;color:#444}
+ul.related{padding-left:20px}
+ol,ul{padding-left:22px}
